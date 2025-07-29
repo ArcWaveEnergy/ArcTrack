@@ -1,1 +1,1 @@
-// Placeholder for dashboard and navigation logic
+console.log('Main JS loaded');
