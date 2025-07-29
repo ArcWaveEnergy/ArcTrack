@@ -11,7 +11,7 @@ fs.mkdirSync(dbDir, { recursive: true });
 const dbPath = path.join(dbDir, 'arctrack.sqlite');
 const db = new Database(dbPath);
 
-// Init schema if not exists
+// Init schema
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY,
@@ -58,11 +58,13 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 `);
 
-// Ensure job_number column exists (migration for older DBs)
-const cols = db.prepare("PRAGMA table_info(jobs)").all();
-const hasJobNumber = cols.some(c => c.name === 'job_number');
-if (!hasJobNumber) {
-  try { db.exec("ALTER TABLE jobs ADD COLUMN job_number TEXT"); } catch {}
-}
+// Migration: ensure job_number exists
+try {
+  const cols = db.prepare('PRAGMA table_info(jobs)').all();
+  const hasJobNumber = cols.some(c => c.name === 'job_number');
+  if (!hasJobNumber) {
+    db.exec('ALTER TABLE jobs ADD COLUMN job_number TEXT');
+  }
+} catch {}
 
 export default db;

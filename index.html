@@ -10,11 +10,10 @@
 </head>
 <body>
   <header>
-    <div style="display:flex;align-items:center;">
+    <div class="brand">
       <img src="/logo.png" class="logo" alt="ArcWave Energy Logo">
       <h1>ArcTrack</h1>
     </div>
-    <h1>ArcTrack</h1>
     <div class="user-bar">
       <input id="userEmail" type="email" placeholder="your.email@example.com">
       <button id="saveEmail">Save Email</button>
@@ -22,83 +21,53 @@
   </header>
 
   <main>
-  <section class="hero panel">
-    <div class="hero-left">
-      <div class="brand">
-        <img src="/logo.png" class="logo" alt="ArcWave Energy Logo">
-        <h1>ArcTrack</h1>
+    <section class="panel">
+      <h2>Active Job</h2>
+      <div class="grid">
+        <select id="activeJob"></select>
+        <button id="newJobBtn">+ New Job</button>
       </div>
-
-      <div class="control">
-        <label for="activeJob" class="label">Job</label>
-        <div class="row">
-          <select id="activeJob"></select>
-          <button id="newJobBtn">+ New Job</button>
-        </div>
-      </div>
-
-      <div class="timer">
-        <div id="elapsed">00:00:00</div>
-        <div class="status-row">
-          <span id="gpsDot" class="dot"></span><span id="gpsText">GPS idle</span>
-          <span style="margin-left:12px;">•</span>
-          <span id="timerStatus">Not running</span>
-        </div>
-      </div>
-
-      <div class="actions">
+      <div id="elapsed" class="timer">00:00:00</div>
+      <div class="grid">
         <button id="startBtn" class="primary">Clock In</button>
         <button id="stopBtn" class="danger" disabled>Clock Out</button>
       </div>
-    </div>
+      <div id="timerStatus" class="status">Not running</div>
+    </section>
 
-    <div class="hero-right">
-      <div class="card">
-        <h3>Quick Add: Hotel</h3>
-        <div class="grid">
-          <input type="date" id="hotelDate" />
-          <input type="number" id="hotelCost" placeholder="Cost (USD)" step="0.01" />
-          <input type="number" id="hotelNights" placeholder="Nights" />
-          <button id="addHotel">Add to Job</button>
-        </div>
+    <section class="panel">
+      <h2>Hotel Info</h2>
+      <div class="grid">
+        <input type="date" id="hotelDate">
+        <input type="number" id="hotelCost" placeholder="Cost (USD)" step="0.01">
+        <input type="number" id="hotelNights" placeholder="Nights">
+        <button id="addHotel">Add Hotel Record</button>
       </div>
+    </section>
 
-      <div class="card">
-        <h3>Reports</h3>
-        <p>Create a PDF job report and email to the office with you CC’d.</p>
-        <button id="sendReport">Send Report for Selected Job</button>
+    <section class="panel">
+      <h2>Jobs</h2>
+      <div id="jobs"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="jobModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Create New Job</h3>
+      <div class="grid">
+        <input id="jobName" placeholder="Job Name">
+        <input id="jobNumber" placeholder="Job Number (optional)">
+        <input id="jobClient" placeholder="Client">
+        <input id="jobLocation" placeholder="Location">
       </div>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>Jobs</h2>
-    <div id="jobs"></div>
-  </section>
-</main>
-
-<!-- Create Job Modal -->
-<div id="jobModal" class="modal hidden">
-  <div class="modal-content">
-    <h3>Create Job</h3>
-    <div class="grid">
-      <input id="jobName" placeholder="Job Name" />
-      <input id="jobNumber" placeholder="Job Number (optional)" />
-      <input id="jobClient" placeholder="Client" />
-      <input id="jobLocation" placeholder="Location" />
-    </div>
-    <div class="row end">
-      <button id="createJob">Create</button>
-      <button id="createStartJob" class="primary">Create & Start Now</button>
-      <button id="cancelJob" class="ghost">Cancel</button>
+      <div class="grid">
+        <button id="createJob">Create</button>
+        <button id="createStartJob" class="primary">Create & Start Now</button>
+        <button id="cancelJob" class="ghost">Cancel</button>
+      </div>
     </div>
   </div>
-</div>
-
-
-  <footer>
-    <small>Regular hours 8:00–17:00 America/Chicago. Everything else is overtime.</small>
-  </footer>
 
   <script src="/app.js" type="module"></script>
 </body>

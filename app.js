@@ -81,7 +81,6 @@ async function loadJobs(selectIdToSet) {
     jobsDiv.appendChild(div);
   }
 
-  // attach report handlers
   jobsDiv.querySelectorAll('button.send').forEach(b => {
     b.onclick = async () => {
       const jobId = Number(b.getAttribute('data-id'));
@@ -91,7 +90,6 @@ async function loadJobs(selectIdToSet) {
     };
   });
 
-  // restore selection
   if (selectIdToSet) activeSel.value = String(selectIdToSet);
   else {
     const last = getLastJob();
@@ -103,12 +101,8 @@ function getPosition() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve({});
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        $('#gpsDot').classList.add('on');
-        $('#gpsText').textContent = 'GPS locked';
-        resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      },
-      () => { $('#gpsDot').classList.remove('on'); $('#gpsText').textContent = 'GPS unavailable'; resolve({}); }
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve({})
     );
   });
 }
@@ -123,16 +117,11 @@ async function createJobCore(startImmediately=false) {
   const client = $('#jobClient').value.trim();
   const location = $('#jobLocation').value.trim();
 
-  const res = await fetchJSON('/api/jobs', {
-    method: 'POST',
-    body: JSON.stringify({ name, jobNumber, client, location })
-  });
+  const res = await fetchJSON('/api/jobs', { method:'POST', body: JSON.stringify({ name, jobNumber, client, location }) });
   await loadJobs(res.id);
   closeJobModal();
   saveLastJob(res.id);
-  if (startImmediately) {
-    await startClock();
-  }
+  if (startImmediately) await startClock();
 }
 
 async function startClock() {
@@ -140,8 +129,7 @@ async function startClock() {
   if (!jobId) { openJobModal(); return; }
   saveLastJob(jobId);
   const gps = await getPosition();
-  const body = { jobId, ...gps };
-  const res = await fetchJSON('/api/clock/start', { method:'POST', body: JSON.stringify(body) });
+  const res = await fetchJSON('/api/clock/start', { method:'POST', body: JSON.stringify({ jobId, ...gps }) });
   activeEntryId = res.id;
   $('#timerStatus').textContent = `Started at ${new Date(res.startISO).toLocaleString()}`;
   setButtons(true);
@@ -170,29 +158,19 @@ async function addHotel() {
   alert('Hotel record added to job');
 }
 
-async function sendReportForSelected() {
-  const jobId = Number($('#activeJob').value);
-  if (!jobId) return alert('Select a job first');
-  const res = await fetchJSON('/api/reports/send', { method:'POST', body: JSON.stringify({ jobId }) });
-  if (res.ok) alert('Report sent' + (res.email?.sent === false ? ` (email error: ${res.email.error})` : ''));
-  else alert('Failed to send');
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-  // Header email (optional if present)
   const saveEmailBtn = document.getElementById('saveEmail');
   if (saveEmailBtn) saveEmailBtn.addEventListener('click', saveUser);
-  await loadUser();
 
   $('#startBtn').addEventListener('click', startClock);
   $('#stopBtn').addEventListener('click', stopClock);
   $('#addHotel').addEventListener('click', addHotel);
-  $('#sendReport').addEventListener('click', sendReportForSelected);
 
-  $('#newJobBtn').addEventListener('click', openJobModal);
+  $('#newJobBtn').addEventListener('click', () => document.getElementById('jobModal').classList.remove('hidden'));
   $('#createJob').addEventListener('click', () => createJobCore(false));
   $('#createStartJob').addEventListener('click', () => createJobCore(true));
-  $('#cancelJob').addEventListener('click', closeJobModal);
+  $('#cancelJob').addEventListener('click', () => document.getElementById('jobModal').classList.add('hidden'));
 
+  await loadUser();
   await loadJobs();
 });
