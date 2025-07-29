@@ -1,1 +1,0 @@
-// Full PDF export logic with totals and embedded receipts
