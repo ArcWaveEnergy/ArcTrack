@@ -16,63 +16,42 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
-
-// Static
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Basic "user" from header/body (for CC)
-function getUser(req) {
-  const email = (req.headers['x-user-email'] || req.body.userEmail || '').toString().trim();
-  return { id: 1, email };
-}
-
-// Constants
 const TZ = 'America/Chicago';
 const REG_START_HOUR = 8;
 const REG_END_HOUR = 17;
 
-// Helpers
 function splitRegularOT(startISO, endISO) {
   const start = DateTime.fromISO(startISO, { zone: TZ });
   const end = DateTime.fromISO(endISO, { zone: TZ });
   if (!start.isValid || !end.isValid || end <= start) return { reg: 0, ot: 0 };
-
   let reg = 0, ot = 0;
   let cursor = start;
-
   while (cursor < end) {
     const dayEnd = cursor.endOf('day');
     const segmentEnd = end < dayEnd ? end : dayEnd;
-
     const regularStart = cursor.set({ hour: REG_START_HOUR, minute: 0, second: 0, millisecond: 0 });
     const regularEnd = cursor.set({ hour: REG_END_HOUR, minute: 0, second: 0, millisecond: 0 });
-
     const worked = Interval.fromDateTimes(cursor, segmentEnd);
     const regWindow = Interval.fromDateTimes(regularStart, regularEnd);
     const regOverlap = worked.intersection(regWindow);
     const regMinutes = regOverlap ? regOverlap.length('minutes') : 0;
     const workedMinutes = worked.length('minutes');
     const otMinutes = Math.max(0, workedMinutes - regMinutes);
-
     reg += Math.round(regMinutes);
     ot += Math.round(otMinutes);
-
     cursor = segmentEnd.plus({ milliseconds: 1 });
   }
   return { reg, ot };
 }
 
-// Uploads
 const uploadDir = path.join(__dirname, 'uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 const upload = multer({ dest: uploadDir });
 
-// -------- API --------
-
-// User email
 app.get('/api/me', (req, res) => {
   const row = db.prepare('SELECT email FROM users WHERE id = 1').get();
   res.json({ email: row?.email || '' });
@@ -83,7 +62,6 @@ app.post('/api/me', (req, res) => {
   res.json({ ok: true, email });
 });
 
-// Jobs
 app.get('/api/jobs', (_req, res) => {
   const rows = db.prepare('SELECT * FROM jobs ORDER BY created_at DESC').all();
   res.json(rows);
@@ -102,7 +80,6 @@ app.patch('/api/jobs/:id/complete', (req, res) => {
   res.json({ ok: true });
 });
 
-// Time tracking
 app.post('/api/clock/start', (req, res) => {
   const { jobId, lat, lng, startISO } = req.body;
   const sISO = startISO || DateTime.now().setZone(TZ).toISO();
@@ -119,7 +96,7 @@ app.post('/api/clock/end', (req, res) => {
   if (!row) return res.status(404).json({ error: 'Entry not found' });
   const eISO = endISO || DateTime.now().setZone(TZ).toISO();
   const { reg, ot } = splitRegularOT(row.start_time, eISO);
-  db.prepare(`UPDATE time_entries SET end_time=?, end_lat=?, end_lng=?, reg_minutes=?, ot_minutes=? WHERE id=?`)
+  db.prepare(\`UPDATE time_entries SET end_time=?, end_lat=?, end_lng=?, reg_minutes=?, ot_minutes=? WHERE id=?\`)
     .run(eISO, lat ?? null, lng ?? null, reg, ot, entryId);
   res.json({ ok: true, regMinutes: reg, otMinutes: ot, endISO: eISO });
 });
@@ -130,7 +107,6 @@ app.get('/api/time/:jobId', (req, res) => {
   res.json(rows);
 });
 
-// Hotels
 app.post('/api/hotel', (req, res) => {
   const { jobId, date, cost, nights } = req.body;
   const info = db.prepare('INSERT INTO hotels (job_id, date, cost, nights) VALUES (?, ?, ?, ?)').run(jobId, date, cost, nights);
@@ -145,7 +121,6 @@ app.post('/api/hotel/receipt', upload.single('receipt'), (req, res) => {
   res.json({ id: info.lastInsertRowid, path: filePath });
 });
 
-// Reports
 app.post('/api/reports/send', async (req, res) => {
   const { jobId } = req.body;
   const job = db.prepare('SELECT * FROM jobs WHERE id=?').get(jobId);
@@ -163,30 +138,29 @@ app.post('/api/reports/send', async (req, res) => {
 
   const reportsDir = path.join(__dirname, 'reports');
   fs.mkdirSync(reportsDir, { recursive: true });
-  const pdfName = `job-${jobId}-report-${Date.now()}.pdf`;
+  const pdfName = \`job-\${jobId}-report-\${Date.now()}.pdf\`;
   const pdfPath = path.join(reportsDir, pdfName);
 
   const doc = new PDFDocument({ margin: 50 });
   doc.pipe(fs.createWriteStream(pdfPath));
   doc.fontSize(20).text('ArcTrack Job Report', { align: 'center' });
   doc.moveDown();
-  doc.fontSize(12).text(`Job: ${job.name} ${job.job_number ? '(#' + job.job_number + ')' : ''}`);
-  doc.text(`Client: ${job.client || ''} | Location: ${job.location || ''}`);
-  doc.text(`Created: ${new Date().toLocaleString('en-US', { timeZone: TZ })}`);
+  doc.fontSize(12).text(\`Job: \${job.name} \${job.job_number ? '(#' + job.job_number + ')' : ''}\`);
+  doc.text(\`Client: \${job.client || ''} | Location: \${job.location || ''}\`);
+  doc.text(\`Created: \${new Date().toLocaleString('en-US', { timeZone: TZ })}\`);
   doc.moveDown();
   doc.fontSize(14).text('Time Summary');
-  doc.fontSize(12).text(`Regular Hours: ${(regMinutes/60).toFixed(2)}`);
-  doc.text(`Overtime Hours: ${(otMinutes/60).toFixed(2)}`);
+  doc.fontSize(12).text(\`Regular Hours: \${(regMinutes/60).toFixed(2)}\`);
+  doc.text(\`Overtime Hours: \${(otMinutes/60).toFixed(2)}\`);
   doc.moveDown();
   doc.fontSize(14).text('Hotel Summary');
-  doc.fontSize(12).text(`Nights: ${hotelNights}`);
-  doc.text(`Costs: $${hotelCost.toFixed(2)}`);
+  doc.fontSize(12).text(\`Nights: \${hotelNights}\`);
+  doc.text(\`Costs: $\${hotelCost.toFixed(2)}\`);
   doc.moveDown();
   doc.fontSize(14).text('Time Entries');
   time.forEach(t => {
     doc.fontSize(10).text(
-      `Start: ${t.start_time}  End: ${t.end_time || ''}  Reg: ${(t.reg_minutes||0)/60}h  OT: ${(t.ot_minutes||0)/60}h  ` +
-      `Start GPS: ${t.start_lat||''},${t.start_lng||''}  End GPS: ${t.end_lat||''},${t.end_lng||''}`
+      \`Start: \${t.start_time}  End: \${t.end_time || ''}  Reg: \${(t.reg_minutes||0)/60}h  OT: \${(t.ot_minutes||0)/60}h  Start GPS: \${t.start_lat||''},\${t.start_lng||''}  End GPS: \${t.end_lat||''},\${t.end_lng||''}\`
     );
   });
   doc.end();
@@ -205,31 +179,23 @@ app.post('/api/reports/send', async (req, res) => {
   const message = {
     from: process.env.MAIL_FROM || 'ArcTrack <no-reply@example.com>',
     to, cc,
-    subject: `ArcTrack Job Report - ${job.job_number ? ('#' + job.job_number + ' - ') : ''}${job.name}`,
-    text: `Job report for ${job.name} is attached.`,
+    subject: \`ArcTrack Job Report - \${job.job_number ? ('#' + job.job_number + ' - ') : ''}\${job.name}\`,
+    text: \`Job report for \${job.name} is attached.\`,
     attachments: [{ filename: pdfName, path: pdfPath }]
   };
 
-  try {
-    await transporter.sendMail(message);
-  } catch (err) {
-    console.error('Email send failed:', err.message);
-    return res.status(200).json({ ok: true, pdfPath, email: { sent: false, error: err.message } });
-  }
+  try { await transporter.sendMail(message); }
+  catch (err) { return res.status(200).json({ ok: true, pdfPath, email: { sent: false, error: err.message } }); }
 
   res.json({ ok: true, pdfPath, email: { sent: true, to, cc } });
 });
 
-// Health
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// Serve index.html for all non-API routes (avoid 404 on SPA)
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api/')) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`ArcTrack server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => { console.log(\`ArcTrack server running on http://localhost:\${PORT}\`); });
