@@ -1,0 +1,1 @@
+console.log('ArcWave Job Manager loaded');

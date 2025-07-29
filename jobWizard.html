@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Create New Job</title><link rel="stylesheet" href="style.css"/></head>
+<body>
+<header><h2>Create New Job</h2></header>
+<div class="container">
+  <div class="form-row"><label>Job Name</label><input id="jobName" placeholder="e.g., ArcWave-Substation-07-Install" required/></div>
+  <div class="form-row"><label>Technician</label><input id="technician" placeholder="Your name" required/></div>
+  <div class="form-row"><label>Location</label><input id="location" placeholder="City, State"/></div>
+  <div class="form-row"><label>Start Date</label><input type="date" id="startDate" required/></div>
+  <div class="form-row"><label>User Email (optional, CC)</label><input type="email" id="userEmail" placeholder="you@company.com"/></div>
+  <button id="createJobBtn">Create Job</button>
+  <button onclick="window.location.href='index.html'">Cancel</button>
+  <p class="note">Jobs are saved locally. Add entries and complete later.</p>
+</div>
+<script src="js/db.js"></script><script src="js/jobWizard.js"></script>
+</body></html>
