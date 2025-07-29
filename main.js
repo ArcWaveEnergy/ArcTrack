@@ -1,1 +1,1 @@
-console.log('ArcWave Job Manager loaded');
+console.log('ArcWave Job Manager loaded (TimeRange build)');
