@@ -1,1 +1,0 @@
-// Upload and store image files for receipts
