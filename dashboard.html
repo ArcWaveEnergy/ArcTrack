@@ -16,7 +16,8 @@
 <body>
     <h1>Weekly Job Summary</h1>
     <button onclick="window.location.href='index.html'">← Back to Job Entry</button>
-    <table>
+    <button onclick="exportCSV()">Export CSV</button>
+       <button onclick="exportPDF()">Export PDF</button><table>
         <thead>
             <tr>
                 <th>Date</th>
@@ -28,17 +29,32 @@
                 <th>Nights Stayed</th>
             </tr>
         </thead>
-        <tbody id="summaryBody"></tbody>
+        <tbody id="summaryBody"></tbody><tfoot id="summaryTotals"></tfoot>
     </table>
 
     <script>
+        
         const jobs = JSON.parse(localStorage.getItem("arcwaveJobs") || "[]");
+        const jobGroups = {};
+        jobs.forEach(job => {
+            const group = job.jobName || "Unassigned";
+            if (!jobGroups[group]) jobGroups[group] = [];
+            jobGroups[group].push(job);
+        });
+    
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const filteredJobs = jobs.filter(job => new Date(job.startTime) >= oneWeekAgo);
 
         const tbody = document.getElementById("summaryBody");
+        
+        let totals = { reg: 0, ot: 0, hotel: 0, nights: 0 };
         filteredJobs.forEach(job => {
+            totals.reg += job.regularHours || 0;
+            totals.ot += job.overtimeHours || 0;
+            totals.hotel += job.hotelCost || 0;
+            totals.nights += job.nightsStayed || 0;
+    
             const row = `<tr>
                 <td>${new Date(job.startTime).toLocaleDateString()}</td>
                 <td>${job.techName}</td>
@@ -48,8 +64,100 @@
                 <td>$${job.hotelCost.toFixed(2)}</td>
                 <td>${job.nightsStayed}</td>
             </tr>`;
+            
             tbody.innerHTML += row;
         });
-    </script>
+        const summaryFooter = `<tr style="font-weight:bold;">
+            <td colspan="3">Totals</td>
+            <td>${totals.reg.toFixed(2)}</td>
+            <td>${totals.ot.toFixed(2)}</td>
+            <td>$${totals.hotel.toFixed(2)}</td>
+            <td>${totals.nights}</td>
+        </tr>`;
+        document.getElementById("summaryTotals").innerHTML = summaryFooter;
+    
+        });
+    
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8," + 
+                "Date,Technician,Location,Regular Hours,Overtime Hours,Hotel Cost,Nights Stayed\n";
+
+            
+        let totals = { reg: 0, ot: 0, hotel: 0, nights: 0 };
+        filteredJobs.forEach(job => {
+            totals.reg += job.regularHours || 0;
+            totals.ot += job.overtimeHours || 0;
+            totals.hotel += job.hotelCost || 0;
+            totals.nights += job.nightsStayed || 0;
+    
+                
+            totals.reg += parseFloat(job.regularHours || 0);
+            totals.ot += parseFloat(job.overtimeHours || 0);
+            totals.hotel += parseFloat(job.hotelCost || 0);
+            totals.nights += parseInt(job.nightsStayed || 0);
+            const row = [
+    
+                    new Date(job.startTime).toLocaleDateString(),
+                    job.techName,
+                    job.location,
+                    job.regularHours.toFixed(2),
+                    job.overtimeHours.toFixed(2),
+                    job.hotelCost.toFixed(2),
+                    job.nightsStayed
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "arcwave_weekly_report.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    
+        function exportPDF() {
+            const rows = filteredJobs.map(job => [
+                new Date(job.startTime).toLocaleDateString(),
+                job.techName,
+                job.location,
+                job.regularHours.toFixed(2),
+                job.overtimeHours.toFixed(2),
+                "$" + job.hotelCost.toFixed(2),
+                job.nightsStayed.toString()
+            ]);
+
+            const headers = ["Date", "Technician", "Location", "Reg Hrs", "OT Hrs", "Hotel", "Nights"];
+
+            
+        const doc = new jspdf.jsPDF();
+        const totalLine = [
+            "", "TOTALS", "", 
+            totals.reg.toFixed(2),
+            totals.ot.toFixed(2),
+            "$" + totals.hotel.toFixed(2),
+            totals.nights.toString()
+        ];
+    
+            doc.text("ArcWave Weekly Report", 14, 15);
+            
+        doc.autoTable({
+            head: [headers],
+            body: rows,
+            foot: [totalLine],
+            startY: 20
+        });
+    
+                head: [headers],
+                body: rows,
+                startY: 20
+            });
+            doc.save("arcwave_weekly_report.pdf");
+        }
+
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@
     <h1>Job Entry</h1>
 
     <div class="section">
-        <label>Technician Name</label>
+        <label>Job Name</label><input type='text' id='jobName'><br><label>Technician Name</label>
         <input type="text" id="techName">
 
         <label>Job Location</label>
@@ -79,6 +79,7 @@
             const otHours = Math.max(0, totalHours - 8);
 
             const job = {
+jobName: document.getElementById('jobName').value,
                 techName: document.getElementById("techName").value,
                 location: document.getElementById("jobLocation").value,
                 startTime: start.toISOString(),
