@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS jobs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
+  job_number TEXT,
   client TEXT,
   location TEXT,
   is_complete INTEGER DEFAULT 0,
@@ -56,5 +57,12 @@ CREATE TABLE IF NOT EXISTS reports (
   FOREIGN KEY(job_id) REFERENCES jobs(id)
 );
 `);
+
+// Ensure job_number column exists (migration for older DBs)
+const cols = db.prepare("PRAGMA table_info(jobs)").all();
+const hasJobNumber = cols.some(c => c.name === 'job_number');
+if (!hasJobNumber) {
+  try { db.exec("ALTER TABLE jobs ADD COLUMN job_number TEXT"); } catch {}
+}
 
 export default db;

@@ -96,9 +96,9 @@ app.get('/api/jobs', (req, res) => {
 });
 
 app.post('/api/jobs', (req, res) => {
-  const { name, client, location } = req.body;
-  const stmt = db.prepare('INSERT INTO jobs (name, client, location, is_complete, created_at) VALUES (?, ?, ?, 0, CURRENT_TIMESTAMP)');
-  const info = stmt.run(name, client, location);
+  const { name, client, location, jobNumber } = req.body;
+  const stmt = db.prepare('INSERT INTO jobs (name, client, location, job_number, is_complete, created_at) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)');
+  const info = stmt.run(name, client, location, jobNumber || null);
   res.json({ id: info.lastInsertRowid });
 });
 
@@ -230,7 +230,7 @@ app.post('/api/reports/send', async (req, res) => {
     from: process.env.MAIL_FROM || 'ArcTrack <no-reply@example.com>',
     to,
     cc,
-    subject: `ArcTrack Job Report - ${job.name}`,
+    subject: `ArcTrack Job Report - ${job.job_number ? ('#' + job.job_number + ' - ') : ''}${job.name}`,
     text: `Job report for ${job.name} is attached.`,
     attachments: [{ filename: pdfName, path: pdfPath }]
   };
