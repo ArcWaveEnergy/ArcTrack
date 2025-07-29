@@ -1,1 +1,1 @@
-// Frontend logic and routing
+// Placeholder main logic

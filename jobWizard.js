@@ -8,12 +8,6 @@ document.getElementById('jobForm').addEventListener('submit', function(e) {
         userEmail: document.getElementById('userEmail').value
     };
 
-    const jobFolder = `JobExports/${job.name.replace(/\s+/g, '_')}`;
-    if (!window.indexedDB) {
-        document.getElementById('result').innerText = 'IndexedDB not supported!';
-        return;
-    }
-
     const request = indexedDB.open("ArcWaveJobs", 1);
     request.onupgradeneeded = function(event) {
         const db = event.target.result;
