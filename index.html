@@ -4,6 +4,8 @@
 <head>
     <title>ArcWave Energy Job Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#004080">
+    <link rel="manifest" href="manifest.json">
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
         h1 { text-align: center; }
@@ -19,6 +21,9 @@
     <div class="section">
         <label>Technician Name</label>
         <input type="text" id="techName">
+
+        <label>Technician Email (optional)</label>
+        <input type="email" id="techEmail">
 
         <label>Job Location</label>
         <input type="text" id="jobLocation">
@@ -66,8 +71,34 @@
         }
 
         function submitJob() {
-            alert("Job data saved (local simulation). Future: Send via email or backend.");
-            // This is a placeholder for submission logic
+            const technicianEmail = document.getElementById("techEmail").value || '';
+            const data = {
+                technician: document.getElementById("techName").value,
+                email: technicianEmail,
+                location: document.getElementById("jobLocation").value,
+                startTime: document.getElementById("startTime").value,
+                endTime: document.getElementById("endTime").value,
+                gps: document.getElementById("gpsLocation").value,
+                mileage: document.getElementById("mileage").value,
+                hotelCost: document.getElementById("hotelCost").value,
+                parts: document.getElementById("partsUsed").value,
+                notes: document.getElementById("jobNotes").value
+            };
+
+            const emailBody = Object.entries(data).map(([key, value]) => key + ": " + value).join("\n");
+
+            const recipients = ["jobinformation@arcwaveenergy.com"];
+            if (technicianEmail) recipients.push(technicianEmail);
+
+            window.location.href = `mailto:${recipients.join(",")}?subject=Job Submission - ${data.technician}&body=${encodeURIComponent(emailBody)}`;
+
+            alert("Opening email client to send the job report.");
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js');
+            });
         }
     </script>
 </body>
