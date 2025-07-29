@@ -1,1 +1,0 @@
-// Receipt image upload handler
