@@ -1,0 +1,50 @@
+:root {
+  --bg: #060a12;
+  --panel: #0d1322;
+  --accent: #00bfff;
+  --text: #e0f2ff;
+  --muted: #98a2b3;
+  --ok: #23c55e;
+  --warn: #f59e0b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(circle at top left, #0b1320 0%, #05070c 100%);
+  color: var(--text);
+}
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 16px 24px; border-bottom: 1px solid #1e2a44;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 10;
+}
+header img.logo { height: 40px; margin-right: 12px; }
+h1 { margin: 0; font-size: 22px; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 12px var(--accent); }
+.user-bar { display:flex; gap:8px; align-items:center; }
+.user-bar input { padding:8px 10px; border-radius:8px; border:1px solid #243555; background:#0e1729; color:var(--text); }
+button {
+  background: var(--accent); color:#001428; border:0; border-radius:10px; padding:10px 14px;
+  font-weight:600; cursor:pointer; transition: all .2s ease; text-shadow:0 0 6px #003355;
+}
+button:hover { background:#1acfff; box-shadow:0 0 12px var(--accent); }
+button:active { transform: scale(0.98); }
+main { padding: 24px; display:grid; gap: 18px; max-width: 1100px; margin: 0 auto; }
+.panel {
+  background: var(--panel); border: 1px solid #1d2b47; border-radius: 16px; padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.grid { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+input, select {
+  padding:10px; border-radius:10px; border:1px solid #243555; background:#0e1729; color:var(--text);
+}
+#jobs .job {
+  padding: 10px; border:1px solid #223355; border-radius:12px; margin-bottom:10px;
+  display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center;
+  background: #0e1729; box-shadow:0 0 8px rgba(0,191,255,0.2);
+}
+.badge { padding:4px 8px; border-radius:999px; border:1px solid #2b3d66; color:var(--muted); font-size:12px; }
+.badge.ok { border-color:#1f8b3e; color:#b0f5c8; }
+.badge.warn { border-color:#7a5108; color:#ffd294; }
+footer { text-align:center; padding:20px; color:var(--muted); }

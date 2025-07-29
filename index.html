@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArcTrack</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" type="image/png" href="/logo.png">
+</head>
+<body>
+  <header>
+    <div style="display:flex;align-items:center;">
+      <img src="/logo.png" class="logo" alt="ArcWave Energy Logo">
+      <h1>ArcTrack</h1>
+    </div>
+    <h1>ArcTrack</h1>
+    <div class="user-bar">
+      <input id="userEmail" type="email" placeholder="your.email@example.com">
+      <button id="saveEmail">Save Email</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>New Job</h2>
+      <div class="grid">
+        <input id="jobName" placeholder="Job Name" />
+        <input id="jobClient" placeholder="Client" />
+        <input id="jobLocation" placeholder="Location" />
+        <button id="createJob">Create Job</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Jobs</h2>
+      <div id="jobs"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Active Time</h2>
+      <div class="grid">
+        <select id="activeJob"></select>
+        <button id="startBtn">Start</button>
+        <button id="stopBtn" disabled>End</button>
+        <span id="timerStatus">Not running</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Hotel</h2>
+      <div class="grid">
+        <select id="hotelJob"></select>
+        <input type="date" id="hotelDate" />
+        <input type="number" id="hotelCost" placeholder="Cost (USD)" step="0.01" />
+        <input type="number" id="hotelNights" placeholder="Nights" />
+        <button id="addHotel">Add</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Regular hours 8:00–17:00 America/Chicago. Everything else is overtime.</small>
+  </footer>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
