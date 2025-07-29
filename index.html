@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ArcWave Energy Job Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        h1 { text-align: center; }
+        input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; }
+        label { font-weight: bold; }
+        .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>ArcWave Energy Job Management System</h1>
+
+    <div class="section">
+        <label>Technician Name</label>
+        <input type="text" id="techName">
+
+        <label>Job Location</label>
+        <input type="text" id="jobLocation">
+
+        <label>Start Time</label>
+        <input type="datetime-local" id="startTime">
+
+        <label>End Time</label>
+        <input type="datetime-local" id="endTime">
+
+        <label>GPS Location</label>
+        <input type="text" id="gpsLocation" readonly>
+        <button onclick="getLocation()">Auto-Fill GPS</button>
+
+        <label>Mileage</label>
+        <input type="number" id="mileage" step="0.1">
+
+        <label>Hotel Costs</label>
+        <input type="number" id="hotelCost" step="0.01">
+
+        <label>Parts & Supplies</label>
+        <textarea id="partsUsed" placeholder="List parts used..."></textarea>
+
+        <label>Upload Receipts</label>
+        <input type="file" id="receiptUpload" multiple>
+
+        <label>Additional Notes</label>
+        <textarea id="jobNotes" placeholder="Add any relevant job notes..."></textarea>
+
+        <button onclick="submitJob()">Submit Job</button>
+    </div>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const coords = position.coords.latitude + "," + position.coords.longitude;
+                    document.getElementById("gpsLocation").value = coords;
+                }, function() {
+                    alert("Unable to retrieve location.");
+                });
+            } else {
+                alert("Geolocation not supported.");
+            }
+        }
+
+        function submitJob() {
+            alert("Job data saved (local simulation). Future: Send via email or backend.");
+            // This is a placeholder for submission logic
+        }
+    </script>
+</body>
+</html>
