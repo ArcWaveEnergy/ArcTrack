@@ -1,1 +1,1 @@
-// Main JavaScript logic
+// Frontend logic and routing

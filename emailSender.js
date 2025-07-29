@@ -1,1 +1,1 @@
-// Logic to send email with attachments
+// Email sending with attachments using FormData
