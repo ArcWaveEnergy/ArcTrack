@@ -1,23 +1,12 @@
 {
   "name": "arctrack",
-  "version": "2.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "start": "NODE_ENV=production node server.js",
-    "postinstall": "npm rebuild better-sqlite3 --update-binary || echo 'better-sqlite3 rebuild skipped'"
-  },
-  "engines": {
-    "node": "20.x"
+    "start": "node server.js"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.0",
-    "dotenv": "^16.4.0",
-    "express": "^4.19.2",
-    "luxon": "^3.5.0",
-    "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.13",
-    "pdfkit": "^0.13.0"
+    "express": "^4.19.2"
   }
 }
