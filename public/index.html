@@ -1,0 +1,80 @@
+<!-- Job Modal -->
+<dialog id="jobModal">
+  <div class="modal-header">
+    <h3>Create Job</h3>
+    <button class="appbtn alt" onclick="document.getElementById('jobModal').close()">✕</button>
+  </div>
+  <div class="grid">
+    <input id="jobName" placeholder="Job Name*" />
+    <input id="jobNumber" placeholder="Job Number (optional)" />
+    <input id="jobClient" placeholder="Client" />
+    <input id="jobLocation" placeholder="Location" />
+  </div>
+  <fieldset style="margin-top:10px">
+    <legend>Contact</legend>
+    <input id="clientContact" placeholder="Client Contact" />
+    <input id="address" placeholder="Address" />
+    <input id="city" placeholder="City" />
+    <input id="state" placeholder="State" />
+    <input id="zip" placeholder="ZIP" />
+  </fieldset>
+  <fieldset style="margin-top:10px">
+    <legend>Notes</legend>
+    <textarea id="notes"></textarea>
+  </fieldset>
+  <div class="row" style="margin-top:12px">
+    <button class="appbtn" id="createJobBtn">Create</button>
+    <button class="appbtn alt" onclick="document.getElementById('jobModal').close()">Cancel</button>
+  </div>
+</dialog>
+
+<!-- Hotel Modal -->
+<dialog id="hotelModal">
+  <div class="modal-header">
+    <h3>Hotel Info</h3>
+    <button class="appbtn alt" onclick="document.getElementById('hotelModal').close()">✕</button>
+  </div>
+  <div class="grid">
+    <input type="date" id="hotelDate" />
+    <input type="number" id="hotelCost" placeholder="Cost (USD)" step="0.01" />
+    <input type="number" id="hotelNights" placeholder="Nights" />
+    <button class="appbtn alt" id="addHotelBtn">Add Hotel</button>
+  </div>
+  <table class="table" style="margin-top:10px">
+    <thead><tr><th>Date</th><th>Nights</th><th>Cost</th><th></th></tr></thead>
+    <tbody id="hotelRows"></tbody>
+    <tfoot><tr><td colspan="2">Total</td><td id="hotelTotal">$0.00</td><td></td></tr></tfoot>
+  </table>
+</dialog>
+
+<!-- Parts Modal -->
+<dialog id="partsModal">
+  <div class="modal-header">
+    <h3>Parts Info</h3>
+    <button class="appbtn alt" onclick="document.getElementById('partsModal').close()">✕</button>
+  </div>
+  <div class="grid">
+    <input id="partNumber" placeholder="Part Number" />
+    <input id="partQty" type="number" placeholder="Qty" />
+    <input id="partPrice" type="number" placeholder="Price (USD)" />
+    <input id="partVendor" placeholder="Vendor" />
+    <button class="appbtn alt" id="addPartBtn">Add Part</button>
+  </div>
+  <table class="table" style="margin-top:10px">
+    <thead><tr><th>Part</th><th>Qty</th><th>Price</th><th>Vendor</th><th></th></tr></thead>
+    <tbody id="partsRows"></tbody>
+    <tfoot><tr><td colspan="3">Total</td><td id="partsTotal">$0.00</td><td></td></tr></tfoot>
+  </table>
+</dialog>
+
+<!-- Summary Modal -->
+<dialog id="summaryModal">
+  <div class="modal-header">
+    <h3>📊 Job Summary</h3>
+    <button class="appbtn alt" onclick="document.getElementById('summaryModal').close()">✕</button>
+  </div>
+  <table class="table">
+    <thead><tr><th>Job</th><th>Client</th><th>Hours</th><th>Parts</th><th>Hotels</th><th></th></tr></thead>
+    <tbody id="summaryRows"></tbody>
+  </table>
+</dialog>
