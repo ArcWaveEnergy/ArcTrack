@@ -1,1 +1,1 @@
-import '../src/db.js'; console.log('DB initialized');
+import '../db.js'; console.log('DB initialized');

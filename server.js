@@ -7,7 +7,7 @@ import fs from 'fs';
 import { DateTime, Interval } from 'luxon';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
-import db from './src/db.js';
+import db from './db.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
