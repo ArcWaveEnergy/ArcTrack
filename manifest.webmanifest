@@ -1,9 +1,0 @@
-{
-  "name": "ArcTrack",
-  "short_name": "ArcTrack",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#060a12",
-  "theme_color": "#00bfff",
-  "icons": [{ "src": "/logo.png", "sizes": "512x512", "type": "image/png" }]
-}
