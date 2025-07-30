@@ -1,6 +1,6 @@
 {
   "name": "arctrack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,6 +10,9 @@
     "db:reset": "node scripts/reset-db.js",
     "postinstall": "npm rebuild better-sqlite3 --update-binary || echo 'better-sqlite3 rebuild skipped'"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "better-sqlite3": "^9.4.0",
     "dotenv": "^16.4.0",
@@ -18,8 +21,5 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
     "pdfkit": "^0.13.0"
-  },
-  "engines": {
-    "node": "20.x"
   }
 }

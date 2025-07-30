@@ -11,8 +11,9 @@ fs.mkdirSync(dbDir, { recursive: true });
 const dbPath = path.join(dbDir, 'arctrack.sqlite');
 const db = new Database(dbPath);
 
+// Schema
 db.exec(`
-CREATE TABLE IF NOT EXISTS users ( id INTEGER PRIMARY KEY, email TEXT );
+CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT);
 CREATE TABLE IF NOT EXISTS jobs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -29,29 +30,23 @@ CREATE TABLE IF NOT EXISTS time_entries (
   start_time TEXT NOT NULL,
   end_time TEXT,
   start_lat REAL, start_lng REAL, end_lat REAL, end_lng REAL,
-  reg_minutes INTEGER DEFAULT 0, ot_minutes INTEGER DEFAULT 0,
-  FOREIGN KEY(job_id) REFERENCES jobs(id)
+  reg_minutes INTEGER DEFAULT 0,
+  ot_minutes INTEGER DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS hotels (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   job_id INTEGER NOT NULL,
   date TEXT NOT NULL,
-  cost REAL DEFAULT 0, nights INTEGER DEFAULT 0, receipt_path TEXT,
-  FOREIGN KEY(job_id) REFERENCES jobs(id)
+  cost REAL DEFAULT 0,
+  nights INTEGER DEFAULT 0,
+  receipt_path TEXT
 );
 CREATE TABLE IF NOT EXISTS reports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   job_id INTEGER NOT NULL,
   pdf_path TEXT NOT NULL,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(job_id) REFERENCES jobs(id)
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 `);
-
-try {
-  const cols = db.prepare('PRAGMA table_info(jobs)').all();
-  const hasJobNumber = cols.some(c => c.name === 'job_number');
-  if (!hasJobNumber) { db.exec('ALTER TABLE jobs ADD COLUMN job_number TEXT'); }
-} catch {}
 
 export default db;
