@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArcTrack</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/logo.png" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/logo.png" class="logo" alt="ArcWave Energy" />
+      <h1>ArcTrack</h1>
+    </div>
+    <div class="userbar">
+      <input id="userEmail" type="email" placeholder="your.email@example.com" />
+      <button class="appbtn alt" id="saveEmailBtn">Save Email</button>
+      <button class="appbtn alt" id="summaryBtn">📊 Summary</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Current Job -->
+    <section class="card">
+      <h3 class="section-title">Current Job: <span id="currentJob" class="current">None</span></h3>
+
+      <div class="row">
+        <select id="jobSelect"></select>
+        <button class="appbtn alt" id="newJobBtn">➕ Create Job</button>
+        <button class="appbtn alt" id="hotelBtn">🏨 Hotel Info</button>
+        <button class="appbtn alt" id="partsBtn">🔧 Parts Info</button>
+      </div>
+
+      <div id="elapsed" class="timer">00:00:00</div>
+
+      <div class="row center">
+        <button class="appbtn xl" id="clockInBtn">⏱ Clock In</button>
+        <button class="appbtn danger xl" id="clockOutBtn" disabled>■ Clock Out</button>
+        <button class="appbtn alt xl" id="editTimeBtn">🕒 Edit Time</button>
+        <button class="appbtn alt xl" id="closeJobBtn">✅ Close Job</button>
+      </div>
+
+      <div id="status" class="status">Not running</div>
+      <div class="kpi">
+        <div class="pill">Hours: <span id="kpiHours">0.00</span></div>
+        <div class="pill">Parts: $<span id="kpiParts">0.00</span></div>
+        <div class="pill">Hotels: $<span id="kpiHotels">0.00</span></div>
+      </div>
+    </section>
+
+    <!-- Jobs List -->
+    <section class="card">
+      <h3 class="section-title">Jobs</h3>
+      <div id="jobList"></div>
+    </section>
+  </main>
+
+  <!-- Modals -->
+  <dialog id="jobModal"></dialog>
+  <dialog id="hotelModal"></dialog>
+  <dialog id="partsModal"></dialog>
+  <dialog id="timeModal"></dialog>
+  <dialog id="summaryModal"></dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
