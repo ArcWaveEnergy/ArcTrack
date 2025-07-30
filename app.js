@@ -1,1 +1,1 @@
-console.log('ArcTrack MegaFix app.js loaded');
+console.log('Placeholder app.js loaded');
