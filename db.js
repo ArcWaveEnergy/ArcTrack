@@ -10,6 +10,7 @@ const dataDir = path.join(__dirname, 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 const db = new Database(path.join(dataDir, 'arctrack.sqlite'));
 
+// Base schema
 db.exec(`
 PRAGMA journal_mode = WAL;
 CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT);
@@ -44,11 +45,35 @@ CREATE TABLE IF NOT EXISTS hotels (
 );
 `);
 
-// Seed: sample user & job if none
-const count = db.prepare('SELECT COUNT(*) as c FROM jobs').get().c;
+// ---- MIGRATIONS: add extended job info columns if missing ----
+const cols = db.prepare('PRAGMA table_info(jobs)').all().map(r=>r.name);
+function ensureCol(name, sqlType) {
+  if (!cols.includes(name)) {
+    db.exec(`ALTER TABLE jobs ADD COLUMN ${name} ${sqlType}`);
+  }
+}
+ensureCol('client_contact', 'TEXT');
+ensureCol('address', 'TEXT');
+ensureCol('city', 'TEXT');
+ensureCol('state', 'TEXT');
+ensureCol('zip', 'TEXT');
+ensureCol('site_lat', 'REAL');
+ensureCol('site_lng', 'REAL');
+ensureCol('generator_model', 'TEXT');
+ensureCol('generator_kw', 'REAL');
+ensureCol('fuel_type', 'TEXT');
+ensureCol('on_site_fuel', 'TEXT');
+ensureCol('start_kwh', 'REAL');
+ensureCol('notes', 'TEXT');
+
+// Seed sample job if none
+const count = db.prepare('SELECT COUNT(*) AS c FROM jobs').get().c;
 if (count === 0) {
-  db.prepare('INSERT INTO jobs (name, job_number, client, location) VALUES (?, ?, ?, ?)')
-    .run('Sample Job - Generator Install', '1001', 'ArcWave Energy', 'Houston, TX');
+  db.prepare(`INSERT INTO jobs (name, job_number, client, location, client_contact, address, city, state, zip, generator_model, generator_kw, fuel_type, on_site_fuel, start_kwh, notes)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run('Sample Job - Generator Install', '1001', 'ArcWave Energy', 'Houston, TX',
+      'John Doe, (555) 555-5555', '123 Power Ln', 'Houston', 'TX', '77001',
+      'Cat XQ200', 200, 'Diesel', 'Full at start', 0, 'Initial sample job.');
 }
 
 export default db;

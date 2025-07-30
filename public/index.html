@@ -21,11 +21,11 @@
 
   <main>
     <section class="panel">
-      <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="row" style="justify-content:space-between">
         <div>Current Job: <span id="currentJob" class="current">None</span></div>
         <div class="row">
           <select id="jobSelect"></select>
-          <button class="appbtn outline" id="newJobBtn">➕ New Job</button>
+          <button class="appbtn outline" id="newJobBtn">➕ Create New Job</button>
         </div>
       </div>
       <div id="elapsed" class="timer">00:00:00</div>
@@ -52,16 +52,44 @@
     </section>
   </main>
 
-  <!-- Modal -->
+  <!-- Job Info Modal -->
   <dialog id="jobModal">
-    <h3>Create Job</h3>
+    <div class="modal-header"><h3>Create Job (Power Generation)</h3>
+      <button class="appbtn outline" onclick="document.getElementById('jobModal').close()">✕</button>
+    </div>
     <div class="grid">
-      <input id="jobName" placeholder="Job Name">
+      <input id="jobName" placeholder="Job Name*">
       <input id="jobNumber" placeholder="Job Number (optional)">
       <input id="jobClient" placeholder="Client">
       <input id="jobLocation" placeholder="Location">
     </div>
-    <div class="row" style="margin-top:10px">
+    <fieldset style="margin-top:10px">
+      <legend>Contact & Address</legend>
+      <div class="grid">
+        <input id="clientContact" placeholder="Client Contact (name/phone/email)">
+        <input id="address" placeholder="Street Address">
+        <input id="city" placeholder="City">
+        <input id="state" placeholder="State">
+        <input id="zip" placeholder="ZIP">
+      </div>
+    </fieldset>
+    <fieldset style="margin-top:10px">
+      <legend>Site & Equipment</legend>
+      <div class="grid">
+        <input id="siteLat" placeholder="Site GPS Lat">
+        <input id="siteLng" placeholder="Site GPS Lng">
+        <input id="genModel" placeholder="Generator Model">
+        <input id="genKW" placeholder="Generator kW">
+        <input id="fuelType" placeholder="Fuel Type (Diesel/Natural Gas/etc)">
+        <input id="onSiteFuel" placeholder="On-site Fuel Status">
+        <input id="startKwh" placeholder="Start kWh Reading">
+      </div>
+    </fieldset>
+    <fieldset style="margin-top:10px">
+      <legend>Notes</legend>
+      <textarea id="notes" placeholder="Special instructions or issues"></textarea>
+    </fieldset>
+    <div class="row" style="margin-top:12px">
       <button class="appbtn outline" id="createJobBtn">Create</button>
       <button class="appbtn primary" id="createAndStartBtn">Create & Start</button>
       <button class="appbtn outline" onclick="document.getElementById('jobModal').close()">Cancel</button>
