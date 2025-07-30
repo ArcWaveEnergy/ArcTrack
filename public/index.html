@@ -1,13 +1,73 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>ArcTrack</title>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <h1>ArcTrack is Live</h1>
-    <p>If you see this, Render is serving public/index.html correctly.</p>
-    <script src="app.js"></script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ArcTrack</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/logo.png">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/logo.png" class="logo" alt="ArcWave Energy logo">
+      <h1>ArcTrack</h1>
+    </div>
+    <div class="userbar">
+      <input id="userEmail" type="email" placeholder="your.email@example.com">
+      <button class="appbtn outline" id="saveEmailBtn">Save Email</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>Current Job: <span id="currentJob" class="current">None</span></div>
+        <div class="row">
+          <select id="jobSelect"></select>
+          <button class="appbtn outline" id="newJobBtn">➕ New Job</button>
+        </div>
+      </div>
+      <div id="elapsed" class="timer">00:00:00</div>
+      <div class="row">
+        <button class="appbtn primary xl" id="clockInBtn">⏱ Clock In</button>
+        <button class="appbtn danger xl" id="clockOutBtn" disabled>■ Clock Out</button>
+      </div>
+      <div id="status" class="status">Not running</div>
+    </section>
+
+    <section class="panel">
+      <h3>Hotel Info</h3>
+      <div class="grid">
+        <input type="date" id="hotelDate">
+        <input type="number" id="hotelCost" placeholder="Cost (USD)" step="0.01">
+        <input type="number" id="hotelNights" placeholder="Nights">
+        <button class="appbtn outline" id="addHotelBtn">🏨 Add Hotel</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Jobs</h3>
+      <div id="jobList" class="joblist"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <dialog id="jobModal">
+    <h3>Create Job</h3>
+    <div class="grid">
+      <input id="jobName" placeholder="Job Name">
+      <input id="jobNumber" placeholder="Job Number (optional)">
+      <input id="jobClient" placeholder="Client">
+      <input id="jobLocation" placeholder="Location">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="appbtn outline" id="createJobBtn">Create</button>
+      <button class="appbtn primary" id="createAndStartBtn">Create & Start</button>
+      <button class="appbtn outline" onclick="document.getElementById('jobModal').close()">Cancel</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
 </html>
