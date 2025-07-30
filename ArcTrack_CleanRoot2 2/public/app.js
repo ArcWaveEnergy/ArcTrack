@@ -1,0 +1,1 @@
+console.log('ArcTrack CleanRoot2 loaded successfully');
