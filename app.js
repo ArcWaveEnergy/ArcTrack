@@ -1,1 +1,1 @@
-console.log('ArcTrack app.js loaded');
+console.log('ArcTrack MegaFix app.js loaded');
