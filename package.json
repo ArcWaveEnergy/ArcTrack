@@ -1,13 +1,11 @@
 {
   "name": "arctrack",
-  "version": "1.0.1",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node server.js",
     "start": "NODE_ENV=production node server.js",
-    "db:init": "node scripts/init-db.js",
-    "db:reset": "node scripts/reset-db.js",
     "postinstall": "npm rebuild better-sqlite3 --update-binary || echo 'better-sqlite3 rebuild skipped'"
   },
   "engines": {

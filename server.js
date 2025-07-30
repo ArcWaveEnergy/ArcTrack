@@ -19,35 +19,40 @@ const TZ = 'America/Chicago';
 const REG_START_HOUR = 8;
 const REG_END_HOUR = 17;
 
+// Startup self-test (helps diagnose Render path issues)
+console.log('>>> Startup self-test: directory listing:');
+try { fs.readdirSync(process.cwd()).forEach(f => console.log(' -', f)); } catch {}
+console.log('>>> Expect to see server.js and db.js above.');
+
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Helpers
 function splitRegularOT(startISO, endISO) {
   const start = DateTime.fromISO(startISO, { zone: TZ });
   const end = DateTime.fromISO(endISO, { zone: TZ });
   if (!start.isValid || !end.isValid || end <= start) return { reg: 0, ot: 0 };
-  let reg = 0, ot = 0; let cursor = start;
+  let reg = 0, ot = 0, cursor = start;
   while (cursor < end) {
     const dayEnd = cursor.endOf('day');
-    const segmentEnd = end < dayEnd ? end : dayEnd;
-    const regularStart = cursor.set({ hour: REG_START_HOUR, minute: 0, second: 0, millisecond: 0 });
-    const regularEnd = cursor.set({ hour: REG_END_HOUR, minute: 0, second: 0, millisecond: 0 });
-    const worked = Interval.fromDateTimes(cursor, segmentEnd);
-    const regWindow = Interval.fromDateTimes(regularStart, regularEnd);
-    const regOverlap = worked.intersection(regWindow);
-    const regMinutes = regOverlap ? regOverlap.length('minutes') : 0;
-    const workedMinutes = worked.length('minutes');
-    reg += Math.round(regMinutes);
-    ot += Math.round(workedMinutes - regMinutes);
-    cursor = segmentEnd.plus({ milliseconds: 1 });
+    const segEnd = end < dayEnd ? end : dayEnd;
+    const rStart = cursor.set({ hour: REG_START_HOUR, minute: 0, second: 0, millisecond: 0 });
+    const rEnd = cursor.set({ hour: REG_END_HOUR, minute: 0, second: 0, millisecond: 0 });
+    const worked = Interval.fromDateTimes(cursor, segEnd);
+    const regOverlap = worked.intersection(Interval.fromDateTimes(rStart, rEnd));
+    const regMin = regOverlap ? regOverlap.length('minutes') : 0;
+    const workedMin = worked.length('minutes');
+    reg += Math.round(regMin);
+    ot += Math.round(workedMin - regMin);
+    cursor = segEnd.plus({ milliseconds: 1 });
   }
   return { reg, ot };
 }
 
-// Minimal user profile (email only)
-app.get('/api/me', (req, res) => {
-  const row = db.prepare('SELECT email FROM users WHERE id = 1').get();
+// User (email for CC)
+app.get('/api/me', (_req, res) => {
+  const row = db.prepare('SELECT email FROM users WHERE id=1').get();
   res.json({ email: row?.email || '' });
 });
 app.post('/api/me', (req, res) => {
@@ -64,7 +69,7 @@ app.get('/api/jobs', (_req, res) => {
 app.post('/api/jobs', (req, res) => {
   const { name, client, location, jobNumber } = req.body;
   const info = db.prepare('INSERT INTO jobs (name, client, location, job_number, is_complete, created_at) VALUES (?, ?, ?, ?, 0, CURRENT_TIMESTAMP)')
-                 .run(name, client, location, jobNumber || null);
+    .run(name, client, location, jobNumber || null);
   res.json({ id: info.lastInsertRowid });
 });
 
@@ -74,14 +79,13 @@ app.post('/api/clock/start', (req, res) => {
     const { jobId, lat, lng, startISO } = req.body;
     const sISO = startISO || DateTime.now().setZone(TZ).toISO();
     const info = db.prepare('INSERT INTO time_entries (job_id, user_id, start_time, start_lat, start_lng) VALUES (?, 1, ?, ?, ?)')
-                   .run(jobId, sISO, lat ?? null, lng ?? null);
+      .run(jobId, sISO, lat ?? null, lng ?? null);
     res.json({ id: info.lastInsertRowid, startISO: sISO });
   } catch (e) {
     console.error('clock/start error:', e);
     res.status(500).json({ error: 'clock start failed' });
   }
 });
-
 app.post('/api/clock/end', (req, res) => {
   try {
     const { entryId, lat, lng, endISO } = req.body;
@@ -89,15 +93,14 @@ app.post('/api/clock/end', (req, res) => {
     if (!row) return res.status(404).json({ error: 'Entry not found' });
     const eISO = endISO || DateTime.now().setZone(TZ).toISO();
     const { reg, ot } = splitRegularOT(row.start_time, eISO);
-    const sql = 'UPDATE time_entries SET end_time=?, end_lat=?, end_lng=?, reg_minutes=?, ot_minutes=? WHERE id=?';
-    db.prepare(sql).run(eISO, lat ?? null, lng ?? null, reg, ot, entryId);
+    db.prepare('UPDATE time_entries SET end_time=?, end_lat=?, end_lng=?, reg_minutes=?, ot_minutes=? WHERE id=?')
+      .run(eISO, lat ?? null, lng ?? null, reg, ot, entryId);
     res.json({ ok: true, regMinutes: reg, otMinutes: ot, endISO: eISO });
   } catch (e) {
     console.error('clock/end error:', e);
     res.status(500).json({ error: 'clock end failed' });
   }
 });
-
 app.get('/api/time/:jobId', (req, res) => {
   const jobId = Number(req.params.jobId);
   const rows = db.prepare('SELECT * FROM time_entries WHERE job_id=? ORDER BY start_time ASC').all(jobId);
@@ -108,11 +111,11 @@ app.get('/api/time/:jobId', (req, res) => {
 app.post('/api/hotel', (req, res) => {
   const { jobId, date, cost, nights } = req.body;
   const info = db.prepare('INSERT INTO hotels (job_id, date, cost, nights) VALUES (?, ?, ?, ?)')
-                 .run(jobId, date, cost, nights);
+    .run(jobId, date, cost, nights);
   res.json({ id: info.lastInsertRowid });
 });
 
-// Reports
+// Reports (PDF + email)
 app.post('/api/reports/send', async (req, res) => {
   try {
     const { jobId } = req.body;
@@ -124,8 +127,8 @@ app.post('/api/reports/send', async (req, res) => {
     const userRow = db.prepare('SELECT email FROM users WHERE id=1').get();
     const userEmail = userRow?.email || process.env.DEFAULT_USER_CC || '';
 
-    const regMinutes = time.reduce((a, t) => a + (t.reg_minutes || 0), 0);
-    const otMinutes = time.reduce((a, t) => a + (t.ot_minutes || 0), 0);
+    const regMin = time.reduce((a, t) => a + (t.reg_minutes || 0), 0);
+    const otMin = time.reduce((a, t) => a + (t.ot_minutes || 0), 0);
     const hotelCost = hotels.reduce((a, h) => a + (h.cost || 0), 0);
     const hotelNights = hotels.reduce((a, h) => a + (h.nights || 0), 0);
 
@@ -142,8 +145,8 @@ app.post('/api/reports/send', async (req, res) => {
     doc.text(`Created: ${new Date().toLocaleString('en-US', { timeZone: TZ })}`);
     doc.moveDown();
     doc.fontSize(14).text('Time Summary');
-    doc.fontSize(12).text(`Regular Hours: ${(regMinutes/60).toFixed(2)}`);
-    doc.text(`Overtime Hours: ${(otMinutes/60).toFixed(2)}`);
+    doc.fontSize(12).text(`Regular Hours: ${(regMin/60).toFixed(2)}`);
+    doc.text(`Overtime Hours: ${(otMin/60).toFixed(2)}`);
     doc.moveDown();
     doc.fontSize(14).text('Hotel Summary');
     doc.fontSize(12).text(`Nights: ${hotelNights}`);
@@ -155,27 +158,26 @@ app.post('/api/reports/send', async (req, res) => {
     });
     doc.end();
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: String(process.env.SMTP_SECURE || 'false') === 'true',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-    });
+    // Try to send email (safe to skip if SMTP not configured)
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT || 587),
+        secure: String(process.env.SMTP_SECURE || 'false') === 'true',
+        auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined
+      });
+      const to = 'jobinformation@arcwaveenergy.com';
+      const cc = userEmail || undefined;
+      await transporter.sendMail({
+        from: process.env.MAIL_FROM || 'ArcTrack <no-reply@example.com>',
+        to, cc,
+        subject: `ArcTrack Job Report - ${job.job_number ? ('#' + job.job_number + ' - ') : ''}${job.name}`,
+        text: `Job report for ${job.name} is attached.`,
+        attachments: [{ filename: pdfName, path: pdfPath }]
+      });
+    } catch (e) { console.warn('Email send skipped or failed:', e.message); }
 
-    const to = 'jobinformation@arcwaveenergy.com';
-    const cc = userEmail || undefined;
-    const message = {
-      from: process.env.MAIL_FROM || 'ArcTrack <no-reply@example.com>',
-      to, cc,
-      subject: `ArcTrack Job Report - ${job.job_number ? ('#' + job.job_number + ' - ') : ''}${job.name}`,
-      text: `Job report for ${job.name} is attached.`,
-      attachments: [{ filename: pdfName, path: pdfPath }]
-    };
-
-    try { await transporter.sendMail(message); }
-    catch (err) { console.error('Email error:', err.message); }
-
-    res.json({ ok: true, pdfPath, email: { to, cc } });
+    res.json({ ok: true, pdfPath });
   } catch (e) {
     console.error('report send error:', e);
     res.status(500).json({ error: 'report failed' });

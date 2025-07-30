@@ -6,9 +6,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbDir = path.join(__dirname, '..', 'data');
-fs.mkdirSync(dbDir, { recursive: true });
-const dbPath = path.join(dbDir, 'arctrack.sqlite');
+const dataDir = path.join(__dirname, 'data');
+fs.mkdirSync(dataDir, { recursive: true });
+
+const dbPath = path.join(dataDir, 'arctrack.sqlite');
 const db = new Database(dbPath);
 
 // Schema
@@ -48,5 +49,12 @@ CREATE TABLE IF NOT EXISTS reports (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 `);
+
+// Seed sample job if none
+const count = db.prepare('SELECT COUNT(*) AS c FROM jobs').get().c;
+if (count === 0) {
+  db.prepare('INSERT INTO jobs (name, job_number, client, location, is_complete) VALUES (?, ?, ?, ?, 0)')
+    .run('Sample Job - Generator Install', '1001', 'ArcWave Energy', 'Houston, TX');
+}
 
 export default db;

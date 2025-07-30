@@ -1,4 +1,4 @@
-:root{--bg:#060a12;--panel:#0d1322;--accent:#00bfff;--text:#e0f2ff;--muted:#98a2b3}
+:root{--bg:#060a12;--panel:#0d1322;--accent:#00bfff;--text:#e0f2ff;--muted:#98a2b3;--ok:#23c55e;--warn:#f59e0b}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial;background:radial-gradient(circle at top left,#0b1320 0%,#05070c 100%);color:var(--text)}
 header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #1e2a44;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
